@@ -4,72 +4,72 @@ import {
   useMotionValue,
   useTransform,
   useViewportScroll,
-  AnimatePresence
+  AnimatePresence,
 } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import {
+  constSelector,
+  useRecoilBridgeAcrossReactRoots_UNSTABLE,
+} from "recoil";
 
 const Wrapper = styled(motion.div)`
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100vw;
   height: 100vh;
+  justify-content: space-around;
 `;
 
 const Box = styled(motion.div)`
-  width: 600px;
-  height:300px;
-  background-color: white;
-  border-radius: 15px;
+  height: 200px;
+  background-color: rgba(255, 255, 255, 1);
+  border-radius: 40px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
 `;
 
-const Svg = styled.svg`
-  width: 300px;
-  height: 300px;
-  path {
-    stroke: white;
-    stroke-width: 2;
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 50vw;
+  gap: 10px;
+  div:first-child,
+  div:last-child {
+    grid-column: span 2;
   }
 `;
 
-const Button = styled.button`
-  margin-bottom : 30px;
-`
-
-const svg = {
-  start: { pathLength: 0, fill: "rgba(255, 255, 255, 0)" },
-  end: {
-    fill: "rgba(255, 255, 255, 1)",
-    pathLength: 1,
-  },
-};
-
-const boxVariants={
-  initial:{
-    opacity:0,
-    scale:0
-  },
-  visible:{
-    opacity:1,
-    scale:1,
-    rotateZ:360,
-  },
-  leaving:{
-    opacity:0,
-    scale:0,
-    y:10
-  }
-}
-
+const Overlay = styled(motion.div)`
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 function App() {
-  const [showing, setShowing] = useState(false);
-  const toggleShowing = () => setShowing(prev => !prev);
+  const [id, setId] = useState<null | string>(null);
   return (
     <Wrapper>
-        <Button onClick={toggleShowing}>click me</Button>
-        <AnimatePresence>{showing ? <Box variants={boxVariants} initial="initial" animate="visible" exit="leaving" /> : null}</AnimatePresence>
+      <Grid>
+        {["1", "2", "3", "4"].map((n) => (
+          <Box onClick={() => setId(n)} key={n} layoutId={n} />
+        ))}
+      </Grid>
+      <AnimatePresence>
+        {id ? (
+          <Overlay
+            onClick={() => setId(null)}
+            initial={{ backgroundColor: "rgba(0, 0, 0, 0)" }}
+            animate={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+            exit={{ backgroundColor: "rgba(0, 0, 0, 0)" }}
+          >
+            <Box layoutId={id} style={{ width: 400, height: 200 }} />
+          </Overlay>
+        ) : null}
+      </AnimatePresence>
     </Wrapper>
   );
 }
